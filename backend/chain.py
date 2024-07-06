@@ -11,7 +11,6 @@ from langchain_fireworks import ChatFireworks
 from ingest import get_embeddings_model
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
-from langchain_groq import ChatGroq
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelLike
@@ -36,47 +35,44 @@ from langchain_core.runnables import (
 
 
 RESPONSE_TEMPLATE = """\
-You are an expert programmer and problem-solver, tasked with answering any question \
-about Rustore.
+Вы - опытный программист и специалист по решению проблем, которому поручено отвечать на любые вопросы о Rustore.
 
-Generate a comprehensive and informative answer of 80 words or less for the \
-given question based solely on the provided search results (URL and content). You must \
-only use information from the provided search results. Use an unbiased and \
-journalistic tone. Combine search results together into a coherent answer. Do not \
-repeat text. Cite search results using [${{number}}] notation. Only cite the most \
-relevant results that answer the question accurately. Place these citations at the end \
-of the sentence or paragraph that reference them - do not put them all at the end. If \
-different results refer to different entities within the same name, write separate \
-answers for each entity.
+Сформулируйте исчерпывающий и информативный ответ объемом не более 80 слов на заданный вопрос, \
+основываясь исключительно на предоставленных результатах поиска (URL и содержание). \
+Вы должны использовать только информацию из предоставленных результатов поиска. \
+Используйте непредвзятый и журналистский тон. Объедините результаты поиска в связный ответ. \
+Не повторяйте текст. Цитируйте результаты поиска, используя обозначение [${{номер}}]. \
+Цитируйте только наиболее релевантные результаты, которые точно отвечают на вопрос. \
+Размещайте эти цитаты в конце предложения или абзаца, на которые они ссылаются - не помещайте их все в конец. \
+Если разные результаты относятся к разным объектам с \
+одинаковым названием, напишите отдельные ответы для каждого объекта.
 
-You should use bullet points in your answer for readability. Put citations where they apply
-rather than putting them all at the end.
+Для удобства чтения используйте в своем ответе маркированные списки. \
+Размещайте цитаты там, где они применимы, а не все в конце.
 
-If there is nothing in the context relevant to the question at hand, just say "Hmm, \
-I'm not sure." Don't try to make up an answer.
+Если в контексте нет ничего релевантного заданному вопросу, \
+просто скажите "Хмм, я не уверен." Не пытайтесь придумать ответ.
 
-Anything between the following `context`  html blocks is retrieved from a knowledge \
-bank, not part of the conversation with the user. 
+Всё, что находится между следующими html-блоками `context`, извлечено \
+из базы знаний и не является частью разговора с пользователем.
 
 <context>
     {context} 
 <context/>
 
-REMEMBER: If there is no relevant information within the context, just say "Hmm, I'm \
-not sure." Don't try to make up an answer. Anything between the preceding 'context' \
-html blocks is retrieved from a knowledge bank, not part of the conversation with the \
-user.\
-Answer in the language in which the question is asked.\
+ПОМНИТЕ: Если в контексте нет релевантной информации, просто скажите "Хмм, я не уверен."\
+ Не пытайтесь придумать ответ. Всё, что находится между предшествующими html-блоками 'context', \
+ извлечено из базы знаний и не является частью разговора с пользователем.\
 """
 
 REPHRASE_TEMPLATE = """\
-Given the following conversation and a follow up question, rephrase the follow up \
-question to be a standalone question.
+Учитывая следующий диалог и дополнительный вопрос, перефразируйте дополнительный \
+вопрос так, чтобы он стал самостоятельным вопросом.
 
-Chat History:
+История чата:
 {chat_history}
-Follow Up Input: {question}
-Standalone Question:"""
+Дополнительный вопрос: {question}
+Самостоятельный вопрос:"""
 
 
 app = FastAPI()
@@ -187,7 +183,12 @@ def create_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Runnable:
     )
 
 
-llm = ChatOllama(model='command-r:35b-v0.1-q2_K', base_url='http://10.0.24.132:11434')
+# llm = ChatOllama(model='command-r:35b-v0.1-q2_K', base_url='http://10.0.24.132:11434')
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0, streaming=True)
+# llm = ChatFireworks(
+#     model="accounts/fireworks/models/llama-v3-70b-instruct",
+#     temperature=0,
+# )
 
 retriever = get_retriever(llm)
 answer_chain = create_chain(llm, retriever)
