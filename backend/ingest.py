@@ -107,6 +107,7 @@ def split_docs_by_markdown(_docs: [Document]):
             if _new_doc.metadata.get('header'):
                 anchor = re.findall(pattern, _new_doc.metadata["header"])[0]
                 _new_doc.metadata = doc.metadata | dict(source=f'{doc.metadata["source"]}/{anchor}')
+                _new_doc.page_content = f'{_new_doc.metadata["crumbs"]}\n{_new_doc.page_content}'
                 docs_to_return.append(_new_doc)
 
     return docs_to_return
@@ -132,7 +133,7 @@ def load_rustore_docs():
     return SitemapLoaderWithChromium(
         file_path,
         is_local=True,
-        filter_urls=["https://www.rustore.ru/help/sdk/payments/react"],
+        filter_urls=["https://www.rustore.ru/help"],
         parsing_function=rustore_docs_extractor,
         default_parser="lxml",
         bs_kwargs={
