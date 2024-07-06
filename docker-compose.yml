@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    restart: on-failure
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command:
+      - uvicorn --app-dir=backend main:app --host 0.0.0.0 --port 8080
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    restart: always
