@@ -43,7 +43,8 @@ from langchain_core.runnables import (
 
 # Важно отметить, что данное решение было согласовано с трекером и техническими
 # специалистами хакатона, и не нарушает установленного регламента хакатона.
-os.environ["FIREWORKS_API_KEY"] = "o6tBqAUzUJkaZqWwhjSmmuEE1Ctx0G3KBjscFSqAlbzdhdC3"
+os.environ["FIREWORKS_API_KEY"] = "a4oPY4gZKnB3eRrIaFY5FrC5cygA9CisvwZsWSRst9sLV6RX"
+
 
 RESPONSE_TEMPLATE = """\
 Вы - опытный программист и специалист по решению проблем, которому поручено отвечать на любые вопросы о Rustore.
