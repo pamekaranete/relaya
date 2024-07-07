@@ -18,10 +18,10 @@ export LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
 export LANGCHAIN_API_KEY=
 export LANGCHAIN_PROJECT=
 ```
-3. Для запуска локальной llm потребуется [ollama](https://ollama.com/). В проекте используется [aya:35b](https://ollama.com/library/aya:35b)
+3. Для запуска локальной llm потребуется [ollama](https://ollama.com/). В проекте используется [mixtral:8x22b](https://ollama.com/library/mixtral:8x22b-text-v0.1-q4_1)
 Запуск с помощью команды:
 ```shell
-ollama run aya:35b
+ollama run mixtral:8x22b
 ```
 4. Для генерация файла с переменными окружения для docker compose.
 ```shell

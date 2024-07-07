@@ -10,7 +10,6 @@ from langchain_fireworks import ChatFireworks
 
 from ingest import get_embeddings_model
 from langchain_community.chat_models import ChatOllama
-from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelLike
@@ -41,7 +40,7 @@ RESPONSE_TEMPLATE = """\
 основываясь исключительно на предоставленных результатах поиска (URL и содержание). \
 Вы должны использовать только информацию из предоставленных результатов поиска. \
 Используйте непредвзятый и журналистский тон. Объедините результаты поиска в связный ответ. \
-Не повторяйте текст. Цитируйте результаты поиска, используя обозначение [${{номер}}]. \
+Не повторяйте текст. Цитируйте результаты поиска, используя обозначение [${{number}}]. \
 Цитируйте только наиболее релевантные результаты, которые точно отвечают на вопрос. \
 Размещайте эти цитаты в конце предложения или абзаца, на которые они ссылаются - не помещайте их все в конец. \
 Если разные результаты относятся к разным объектам с \
@@ -53,6 +52,8 @@ RESPONSE_TEMPLATE = """\
 Если в контексте нет ничего релевантного заданному вопросу, \
 просто скажите "Хмм, я не уверен." Не пытайтесь придумать ответ.
 
+Если вопрос по коду, то можешь попытаться на него ответить.
+
 Всё, что находится между следующими html-блоками `context`, извлечено \
 из базы знаний и не является частью разговора с пользователем.
 
@@ -60,9 +61,10 @@ RESPONSE_TEMPLATE = """\
     {context} 
 <context/>
 
-ПОМНИТЕ: Если в контексте нет релевантной информации, просто скажите "Хмм, я не уверен."\
- Не пытайтесь придумать ответ. Всё, что находится между предшествующими html-блоками 'context', \
- извлечено из базы знаний и не является частью разговора с пользователем.\
+ПОМНИТЕ: Если в контексте нет релевантной информации, просто скажите "Хмм, я не уверен. Но если вопрос по коду и это простая ошибка, помоги пользователю."\
+Не пытайтесь придумать ответ. Всё, что находится между предшествующими html-блоками 'context', \
+извлечено из базы знаний и не является частью разговора с пользователем. \
+Цитируйте результаты поиска, используя обозначение [${{number}}], где number - это doc id\
 """
 
 REPHRASE_TEMPLATE = """\
@@ -183,12 +185,11 @@ def create_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Runnable:
     )
 
 
-# llm = ChatOllama(model='command-r:35b-v0.1-q2_K', base_url='http://10.0.24.132:11434')
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0, streaming=True)
-# llm = ChatFireworks(
-#     model="accounts/fireworks/models/llama-v3-70b-instruct",
-#     temperature=0,
-# )
+# llm = ChatOllama(model='mixtral:8x22b-text-v0.1-q4_1', base_url='http://10.0.24.132:11434')
+llm = ChatFireworks(
+    model="accounts/fireworks/models/mixtral-8x22b-instruct",
+    temperature=0,
+)
 
 retriever = get_retriever(llm)
 answer_chain = create_chain(llm, retriever)
