@@ -1,17 +1,17 @@
 import { MouseEvent } from "react";
 import {
-  Heading,
-  Link,
-  Card,
-  CardHeader,
-  Flex,
-  Spacer, Box,
+    Heading,
+    Link,
+    Card,
+    CardHeader,
+    Flex,
+    Spacer, Box,
 } from "@chakra-ui/react";
 
 export function EmptyState(props: { onChoice: (question: string) => any }) {
-  const handleClick = (e: MouseEvent) => {
-    props.onChoice((e.target as HTMLDivElement).innerText);
-  };
+    const handleClick = (e: MouseEvent) => {
+        props.onChoice((e.target as HTMLDivElement).innerText);
+    };
     return (
         <Box className="rounded max-w-full"  display="flex" justifyContent="center">
             <Flex direction="row" justifyContent="center" alignItems="center" gap="4" maxWidth="1400px" >
@@ -19,8 +19,8 @@ export function EmptyState(props: { onChoice: (question: string) => any }) {
                     "Что такое chargeback?",
                     "Почему сумма по возвратам отображается как 0 руб.?",
                     "Что делать, если меняются данные Компании, адрес, реквизиты или email?",
-                    "Можно ли создать несколько товаров с одинаковым idо?",
-                    "Можно ли создать один товар с двумя ido?"
+                    "Есть ли возможность конфигурации приложений?",
+                    "В документации RuStore в главе \"Проверка доступности работы с платежами\" указан метод \"checkPurchasesAvailability\", который почему-то не отображается в среде разработки?"
                 ].map((question, index) => (
                     <Card
                         key={index}

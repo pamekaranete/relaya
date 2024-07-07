@@ -48,7 +48,6 @@ export function SourceBubble({
         >
             <CardBody>
                 <Heading fontSize="small" fontWeight="normal" color="gray" pb={2}>
-
                     {parts[0]} {/* Render the first part separately */}
                 </Heading>
                 <Heading color="blue" fontWeight="normal" fontSize="medium" pb={1}>

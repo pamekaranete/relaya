@@ -36,7 +36,7 @@ const MODEL_TYPES = [
 ];
 
 const defaultLlmValue =
-  MODEL_TYPES[Math.floor(Math.random() * MODEL_TYPES.length)];
+    MODEL_TYPES[Math.floor(Math.random() * MODEL_TYPES.length)];
 
 export function ChatWindow(props: { conversationId: string }) {
   const conversationId = props.conversationId;
@@ -48,7 +48,7 @@ export function ChatWindow(props: { conversationId: string }) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [llm, setLlm] = useState(
-    searchParams.get("llm") ?? "openai_gpt_3_5_turbo",
+      searchParams.get("llm") ?? "openai_gpt_3_5_turbo",
   );
   const [llmIsLoading, setLlmIsLoading] = useState(true);
   useEffect(() => {
@@ -57,7 +57,7 @@ export function ChatWindow(props: { conversationId: string }) {
   }, []);
 
   const [chatHistory, setChatHistory] = useState<
-    { human: string; ai: string }[]
+      { human: string; ai: string }[]
   >([]);
 
   const sendMessage = async (message?: string) => {
@@ -176,12 +176,12 @@ export function ChatWindow(props: { conversationId: string }) {
       const searchParams = new URLSearchParams(window.location.search);
       searchParams.set(key, value ?? "");
       const newurl =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        window.location.pathname +
-        "?" +
-        searchParams.toString();
+          window.location.protocol +
+          "//" +
+          window.location.host +
+          window.location.pathname +
+          "?" +
+          searchParams.toString();
       window.history.pushState({ path: newurl }, "", newurl);
     }
   };

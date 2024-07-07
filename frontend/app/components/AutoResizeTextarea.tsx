@@ -7,9 +7,9 @@ interface ResizeTextareaProps {
 }
 
 const ResizableTextarea: React.FC<ResizeTextareaProps> = ({
-  maxRows,
-  ...props
-}) => {
+                                                            maxRows,
+                                                            ...props
+                                                          }) => {
   return <ResizeTextarea maxRows={maxRows} {...props} />;
 };
 
@@ -18,19 +18,19 @@ interface AutoResizeTextareaProps extends TextareaProps {
 }
 
 export const AutoResizeTextarea = React.forwardRef<
-  HTMLTextAreaElement,
-  AutoResizeTextareaProps
+    HTMLTextAreaElement,
+    AutoResizeTextareaProps
 >((props, ref) => {
   return (
-    <Textarea
-      minH="unset"
-      overflow="auto"
-      w="100%"
-      resize="none"
-      ref={ref as React.RefObject<HTMLTextAreaElement>}
-      as={ResizableTextarea}
-      {...props}
-    />
+      <Textarea
+          minH="unset"
+          overflow="auto"
+          w="100%"
+          resize="none"
+          ref={ref as React.RefObject<HTMLTextAreaElement>}
+          as={ResizableTextarea}
+          {...props}
+      />
   );
 });
 

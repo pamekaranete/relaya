@@ -17,14 +17,14 @@ type FeedbackResponse = {
   result: string;
 };
 export const sendFeedback = async ({
-  score,
-  key,
-  runId,
-  value,
-  comment,
-  feedbackId,
-  isExplicit = true,
-}: SendFeedbackProps) => {
+                                     score,
+                                     key,
+                                     runId,
+                                     value,
+                                     comment,
+                                     feedbackId,
+                                     isExplicit = true,
+                                   }: SendFeedbackProps) => {
   const feedback_id = feedbackId ?? uuidv4();
   const response = await fetch(apiBaseUrl + "/feedback", {
     method: feedbackId ? "PATCH" : "POST",

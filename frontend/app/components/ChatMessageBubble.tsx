@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { emojisplosion } from "emojisplosion";
+import { useState, useRef } from "react";
 import * as DOMPurify from "dompurify";
 import { SourceBubble, Source } from "./SourceBubble";
 import {
@@ -28,7 +28,6 @@ export type Message = {
   name?: string;
   function_call?: { name: string };
 };
-
 export type Feedback = {
   feedback_id: string;
   run_id: string;
@@ -59,100 +58,57 @@ const filterSources = (sources: Source[]) => {
 };
 
 const createAnswerElements = (
-    content: string,
-    filteredSources: Source[],
-    sourceIndexMap: Map<number, number>,
-    highlighedSourceLinkStates: boolean[],
-    setHighlightedSourceLinkStates: React.Dispatch<React.SetStateAction<boolean[]>>
+  content: string,
+  filteredSources: Source[],
+  sourceIndexMap: Map<number, number>,
+  highlighedSourceLinkStates: boolean[],
+  setHighlightedSourceLinkStates: React.Dispatch<
+    React.SetStateAction<boolean[]>
+  >,
 ) => {
   const matches = Array.from(content.matchAll(/\[\^?\$?{?(\d+)}?\^?\]/g));
   const elements: JSX.Element[] = [];
   let prevIndex = 0;
 
-  const createCitation = (sourceNum: number, resolvedNum: number) => (
-      <InlineCitation
-          key={`citation:${prevIndex}`}
-          source={filteredSources[resolvedNum]}
-          sourceNumber={resolvedNum + 1}
-          highlighted={highlighedSourceLinkStates[resolvedNum]}
-          onMouseEnter={() =>
-              setHighlightedSourceLinkStates((prevStates) =>
-                  filteredSources.map((_, i) => i === resolvedNum)
-              )
-          }
-          onMouseLeave={() =>
-              setHighlightedSourceLinkStates((prevStates) =>
-                  filteredSources.map(() => false)
-              )
-          }
-      />
-  );
-
-  const processContent = (
-      text: string,
-      includeCitation: boolean = false,
-      citationElement: JSX.Element | null = null
-  ) => {
-    const sanitizedHtml = DOMPurify.sanitize(text);
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(sanitizedHtml, "text/html");
-
-    const processNode = (node: Node): React.ReactNode => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return node.textContent;
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = node as Element;
-        const children = Array.from(element.childNodes).map(processNode);
-        const ElementType = element.tagName.toLowerCase() as keyof JSX.IntrinsicElements;
-
-        // Check if the current element is <li>
-        if (ElementType === "li" && includeCitation && citationElement) {
-          // Check if the last child is a string
-          const lastChild = children[children.length - 1];
-          if (typeof lastChild === "string") {
-            // Trim trailing spaces
-            const trimmedText = lastChild.trimEnd();
-            // Check if it ends with punctuation
-            const endsWithPunctuation = /[.!?]$/.test(trimmedText);
-            // Append punctuation if not present
-            children[children.length - 1] = endsWithPunctuation ? trimmedText : trimmedText + ".";
-            // Add the citation element
-            children.push(citationElement);
-          } else {
-            // Add the citation element
-            children.push(citationElement);
-          }
-        }
-
-        return <ElementType key={prevIndex++}>{children as any}</ElementType>;
-      }
-      return null;
-    };
-
-    return <>{Array.from(doc.body.childNodes).map(processNode)}</>;
-  };
-
   matches.forEach((match) => {
     const sourceNum = parseInt(match[1], 10);
     const resolvedNum = sourceIndexMap.get(sourceNum) ?? 10;
     if (match.index !== null && resolvedNum < filteredSources.length) {
-      const citationElement = createCitation(sourceNum, resolvedNum);
       elements.push(
-          processContent(content.slice(prevIndex, match.index), true, citationElement)
+        <span
+          key={`content:${prevIndex}`}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(content.slice(prevIndex, match.index)),
+          }}
+        ></span>,
+      );
+      elements.push(
+        <InlineCitation
+          key={`citation:${prevIndex}`}
+          source={filteredSources[resolvedNum]}
+          sourceNumber={resolvedNum}
+          highlighted={highlighedSourceLinkStates[resolvedNum]}
+          onMouseEnter={() =>
+            setHighlightedSourceLinkStates(
+              filteredSources.map((_, i) => i === resolvedNum),
+            )
+          }
+          onMouseLeave={() =>
+            setHighlightedSourceLinkStates(filteredSources.map(() => false))
+          }
+        />,
       );
       prevIndex = (match?.index ?? 0) + match[0].length;
     }
   });
-
-  if (prevIndex < content.length) {
-    elements.push(processContent(content.slice(prevIndex)));
-  }
-
-  // Return the elements wrapped in a <ul> if all are <li> elements
-  if (elements.every((el) => React.isValidElement(el))) {
-    return <ul>{elements}</ul>;
-  }
-
+  elements.push(
+    <span
+      key={`content:${prevIndex}`}
+      dangerouslySetInnerHTML={{
+        __html: DOMPurify.sanitize(content.slice(prevIndex)),
+      }}
+    ></span>,
+  );
   return elements;
 };
 
@@ -174,7 +130,7 @@ export function ChatMessageBubble(props: {
 
   const cumulativeOffset = function (element: HTMLElement | null) {
     var top = 0,
-        left = 0;
+      left = 0;
     do {
       top += element?.offsetTop || 0;
       left += element?.offsetLeft || 0;
@@ -207,6 +163,7 @@ export function ChatMessageBubble(props: {
       });
       if (data.code === 200) {
         setFeedback({ run_id, score, key, feedback_id: data.feedbackId });
+        score == 1 ? animateButton("upButton") : animateButton("downButton");
         if (comment) {
           setComment("");
         }
@@ -217,7 +174,6 @@ export function ChatMessageBubble(props: {
     }
     setIsLoading(false);
   };
-
   const viewTrace = async () => {
     try {
       setTraceIsLoading(true);
@@ -250,21 +206,54 @@ export function ChatMessageBubble(props: {
 
   const sources = props.message.sources ?? [];
   const { filtered: filteredSources, indexMap: sourceIndexMap } =
-      filterSources(sources);
+    filterSources(sources);
 
+  // Use an array of highlighted states as a state since React
+  // complains when creating states in a loop
   const [highlighedSourceLinkStates, setHighlightedSourceLinkStates] = useState(
-      filteredSources.map(() => false)
+    filteredSources.map(() => false),
   );
   const answerElements =
-      role === "assistant"
-          ? createAnswerElements(
-              content,
-              filteredSources,
-              sourceIndexMap,
-              highlighedSourceLinkStates,
-              setHighlightedSourceLinkStates
-          )
-          : [];
+    role === "assistant"
+      ? createAnswerElements(
+          content,
+          filteredSources,
+          sourceIndexMap,
+          highlighedSourceLinkStates,
+          setHighlightedSourceLinkStates,
+        )
+      : [];
+
+  const animateButton = (buttonId: string) => {
+    let button: HTMLButtonElement | null;
+    if (buttonId === "upButton") {
+      button = upButtonRef.current;
+    } else if (buttonId === "downButton") {
+      button = downButtonRef.current;
+    } else {
+      return;
+    }
+    if (!button) return;
+    let resolvedButton = button as HTMLButtonElement;
+    resolvedButton.classList.add("animate-ping");
+    setTimeout(() => {
+      resolvedButton.classList.remove("animate-ping");
+    }, 500);
+
+    emojisplosion({
+      emojiCount: 10,
+      uniqueness: 1,
+      position() {
+        const offset = cumulativeOffset(button);
+
+        return {
+          x: offset.left + resolvedButton.clientWidth / 2,
+          y: offset.top + resolvedButton.clientHeight / 2,
+        };
+      },
+      emojis: buttonId === "upButton" ? ["👍"] : ["👎"],
+    });
+  };
 
   return (
       <VStack
@@ -278,17 +267,17 @@ export function ChatMessageBubble(props: {
         {!isUser && (
             <Flex width="100%" justifyContent="space-between" alignItems="flex-start">
               <Box flex="1" pr={4} maxWidth="calc(100% - 270px)">
-                <Heading fontSize="lg" fontWeight="medium" mb={2} color="#0078ff">
+                <Heading fontSize="xl" fontWeight="medium" mb={2} color="#0078ff">
                   Ответ
                 </Heading>
-                <Box color="black" fontSize="md">
+                <Box color="black" fontSize="xl">
                   {answerElements}
                 </Box>
               </Box>
 
               {filteredSources.length > 0 && (
                   <Box width="250px" position="sticky" top="0" alignSelf="flex-start">
-                    <Heading fontSize="lg" fontWeight="medium" mb={2} color="#0078ff">
+                    <Heading fontSize="xl" fontWeight="medium" mb={2} color="#0078ff">
                       Источники
                     </Heading>
                     <Box maxHeight="400px" overflowY="auto" pr={2}>
